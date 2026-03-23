@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createBrowserClient } from "@supabase/ssr";
 import { getArticles, getCategories } from "@/lib/queries";
 import ArticleList from "@/components/article/ArticleList";
 import { notFound } from "next/navigation";
@@ -7,7 +8,10 @@ import type { Article } from "@/types/database";
 export const revalidate = 300;
 
 export async function generateStaticParams() {
-  const supabase = await createClient();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
   const { data: categories } = await getCategories(supabase);
   return (categories ?? []).map((cat) => ({ slug: cat.slug }));
 }
